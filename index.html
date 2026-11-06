@@ -1,0 +1,357 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#080611">
+  <title>JIBON'S WORLD</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Allura&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<canvas id="starCanvas"></canvas>
+<div class="cursor-glow" id="cursorGlow"></div>
+<div class="cursor-dot" id="cursorDot"></div>
+
+<!-- WELCOME SCREEN -->
+<div id="welcome" class="welcome">
+  <div class="welcome-orb"></div>
+  <div class="welcome-content">
+    <div class="welcome-logo">
+  <span>yoo</span>
+  <span>it's</span>
+  <span>jibon</span>
+</div>
+    <p>𝓦𝓮𝓵𝓬𝓸𝓶𝓮 𝓽𝓸 𝓸𝓾 𝓾𝓷𝓲𝓿𝓮𝓻𝓼𝓮</p>
+    <button class="enter-btn" id="enterBtn">
+      ENTER MY UNIVERSE <span>↗</span>
+    </button>
+  </div>
+  <div class="welcome-bottom">✧ Develop By Jibon✧ </div>
+</div>
+
+<!-- MAIN WEBSITE -->
+<div id="mainApp" class="main-app hidden">
+
+  <header class="topbar glass">
+    <button class="menu-btn" id="menuToggle">.☘︎ ݁˖</button>
+    <div class="brand" id="brandLogo"> JIBON</div>
+    <button class="admin-trigger" id="adminTrigger">✦</button>
+  </header>
+
+  <nav class="navbar glass" id="navbar">
+    <button data-page="home" class="nav-link active">Home</button>
+    <button data-page="photos" class="nav-link">Photos</button>
+    <button data-page="hobbies" class="nav-link">Hobbies</button>
+    <button data-page="memories" class="nav-link">Memories</button>
+    <button data-page="about" class="nav-link">About</button>
+  </nav>
+
+  <!-- Home -->
+  <main>
+    <section class="page active" id="page-home">
+      <div class="hero glass">
+        <span class="eyebrow">✦ WELCOME TO MY UNIVERSE ✦</span>
+        <h1>Explore My <span>World</span></h1>
+        <p>A little space filled with my photos, hobbies and memories.</p>
+        <button class="primary-btn" data-open="photos">EXPLORE GALLERY ↗</button>
+        <div class="hero-orb orb-one"></div>
+        <div class="hero-orb orb-two"></div>
+      </div>
+
+      <div class="section-heading">
+        <span>DISCOVER</span>
+        <h2>My World</h2>
+      </div>
+
+      <div class="feature-grid">
+        <button class="feature-card glass" data-open="photos">
+         <span class="motion-emoji">✌︎㋡</span>
+          <h3>My Photos</h3>
+          <p>Personal photo gallery</p>
+          <span class="card-arrow">↗</span>
+        </button>
+       
+       <button class="feature-card glass" data-open="hobbies">
+         <span class="motion-emoji">⚔⊹ ࣪ ˖</span>
+          <h3>My Hobbies</h3>
+          <p>Things I love doing</p>
+          <span class="card-arrow">↗</span>
+        </button>
+        <button class="feature-card glass" data-open="memories">
+          <span class="motion-emoji">｡𖦹°‧</span>
+          <h3>Memories</h3>
+          <p>Special moments</p>
+          <span class="card-arrow">↗</span>
+        </button>
+        <button class="feature-card glass" data-open="about">
+          <span class="motion-emoji">˙𐃷˙</span>
+          <h3>About Me</h3>
+          <p>Get to know me</p>
+          <span class="card-arrow">↗</span>
+        </button>
+      </div>
+
+<!-- SECRET SURPRISE -->
+
+<div class="secret-box">
+
+  <button class="secret-btn" id="secretBtn">
+     More Information
+  </button>
+
+  <div class="secret-message" id="secretMessage">
+    <h2>✦ My Universe ✦</h2>
+
+    <p>
+      Every picture has a story,
+      every memory has a feeling.
+    </p>
+
+    <h3> Website Made By Jibon </h3>
+
+    <p>Thanks for visiting my little universe! ♡</p>
+  </div>
+
+</div>
+    </section>
+
+    <!-- PHOTOS -->
+    <section class="page" id="page-photos">
+      <div class="section-heading">
+        <span>MY COLLECTION</span>
+        <h2>Photo Gallery</h2>
+        <p>Every picture tells a story ✨</p>
+      </div>
+      <div class="category-row" id="photoCategories">
+        <button class="category-btn active" data-category="all">All Photos</button>
+        <button class="category-btn" data-category="frame">nature</button>
+        <button class="category-btn" data-category="memory">Meow</button>
+        <button class="category-btn" data-category="favourite">Photo</button>
+      </div>
+      <div class="photo-grid" id="photoGrid">
+        <div class="empty-state glass">Your photos will appear here </div>
+      </div>
+    </section>
+
+    <!-- HOBBIES -->
+    <section class="page" id="page-hobbies">
+      <div class="section-heading">
+        <span>WHAT I LOVE</span>
+        <h2>My Hobbies</h2>
+      </div>
+      <div class="hobby-grid" id="hobbyGrid"></div>
+      <div class="hobby-detail glass hidden" id="hobbyDetail">
+        <button class="back-btn" id="hobbyBack">← Back</button>
+        <h2 id="hobbyDetailTitle"></h2>
+        <p id="hobbyDetailText"></p>
+        <div class="hobby-detail-images" id="hobbyDetailImages"></div>
+      </div>
+    </section>
+
+    <!-- MEMORIES -->
+    <section class="page" id="page-memories">
+      <div class="section-heading">
+        <span>MY SPECIAL MOMENTS</span>
+        <h2>Memories</h2>
+      </div>
+      <div class="memory-grid" id="memoryGrid">
+        <div class="empty-state glass">Your memories will appear here 🌌</div>
+      </div>
+     
+<!-- SECRET PORTAL INTERFACE -->
+<div id="magicPortalOverlay" class="magic-portal-overlay hidden">
+  <div class="portal-content">
+    <button id="magicPortalClose" class="portal-close">✕</button>
+
+    <div class="portal-circle">
+      <span>✧</span>
+    </div>
+
+    <h2>WELCOME TO THE UNKNOWN</h2>
+    <p>A secret corner of Jibon's World.</p>
+  </div>
+</div>
+<!-- DIMENSION SWITCH -->
+<div class="dimension-switch">
+  <p>✦ EXPLORE ANOTHER DIMENSION ✦</p>
+
+  <button id="dimensionBtn">
+    <span>◈</span> SWITCH DIMENSION
+  </button>
+</div>
+
+<!-- PORTAL WARP -->
+<div id="portalWarp" class="portal-warp">
+  <div class="warp-ring"></div>
+</div>
+
+    </section>
+
+<!-- ABOUT -->
+<section class="page" id="page-about">
+
+  <div class="section-heading">
+    <span>THE PERSON BEHIND THIS WORLD</span>
+    <h2>About Me</h2>
+  </div>
+
+  <div class="profile-scene">
+    <div class="profile-card glass" id="profile3D">
+
+      <div class="profile-glow"></div>
+
+      <div class="profile-avatar">
+        <img
+          src="111.jpg"
+          alt="Jibon Profile"
+          onerror="this.style.display='none'"
+        >
+        <span>J</span>
+      </div>
+
+      <div class="profile-tag">✦ PERSONAL PROFILE</div>
+
+      <h2 class="jibon-signature"> Jibon</h2>
+
+      <p class="profile-role">
+        Student • Photographer • Gaming Lover
+      </p>
+
+      <div class="profile-divider"></div>
+
+      <p class="profile-description">
+        Welcome to my personal universe.
+        Photography, gaming and creativity
+        are part of my world.
+      </p>
+
+      <div class="profile-interests">
+        <span>✌︎㋡ Photography</span>
+        <span> Gaming</span>
+        <span> Technology</span>
+      </div>
+
+      <a
+        href="https://www.instagram.com/__mr_dark_night_/"
+        target="_blank"
+        rel="noopener"
+        class="profile-social"
+      >
+        🅾 Instagram ↗
+      </a>
+
+      <div class="profile-bottom">
+        JIBON'S WORLD <span>✦</span>
+      </div>
+
+    </div>
+  </div>
+
+</section>
+
+
+  <!-- PHOTO VIEWER -->
+  <div class="photo-viewer hidden" id="photoViewer">
+    <button class="viewer-close" id="viewerClose">✕</button>
+    <button class="viewer-arrow viewer-prev" id="viewerPrev">‹</button>
+    <div class="viewer-content">
+      <img id="viewerImage" src="" alt="Selected photo">
+      <h3 id="viewerTitle"></h3>
+      <p id="viewerCounter"></p>
+    </div>
+    <button class="viewer-arrow viewer-next" id="viewerNext">›</button>
+    <button class="slideshow-btn" id="slideshowBtn">▶ Slideshow</button>
+  </div>
+
+
+  <!-- ADMIN -->
+  <div class="admin-overlay hidden" id="adminOverlay">
+    <div class="admin-panel glass">
+      <button class="admin-close" id="adminClose">✕</button>
+      <div id="adminLogin">
+        <span class="eyebrow">PRIVATE SPACE</span>
+        <h2>Admin Studio</h2>
+        <input type="password" id="adminPassword" placeholder="Website Password">
+
+<input
+  type="email"
+  id="supabaseEmail"
+  placeholder="Enter Supabase Email"
+>
+
+<input type="password" id="supabasePassword"
+placeholder="Supabase Password">
+        <button class="primary-btn" id="adminLoginBtn">ENTER ADMIN</button>
+        <p id="adminError"></p>
+      </div>
+
+      <div id="adminDashboard" class="hidden">
+        <h2>Admin Studio ✦</h2>
+        <p>Manage your personal world</p>
+        <div class="admin-stats">
+          <div class="glass"><strong id="photoCount">0</strong><small>Photos</small></div>
+          <div class="glass"><strong id="hobbyCount">0</strong><small>Hobbies</small></div>
+        </div>
+
+        <h3>Add Photo</h3>
+        <input id="photoTitle" placeholder="Photo title">
+        <select id="photoCategory">
+          <option value="frame">Frame</option>
+          <option value="memory">Memory</option>
+          <option value="favourite">Favourite</option>
+        </select>
+        <input type="file" id="photoFile" accept="image/*">
+        <button class="primary-btn" id="addPhotoBtn">ADD PHOTO ＋</button>
+        <div id="adminPhotoList"></div>
+
+        <h3>Add Hobby</h3>
+        <input id="hobbyName" placeholder="Hobby name">
+        <input id="hobbyDescription" placeholder="Short description">
+        <button class="primary-btn" id="addHobbyBtn">ADD HOBBY ＋</button>
+        <div id="adminHobbyList"></div>
+                <!-- ADMIN MUSIC MANAGER -->
+        <h3>Music Manager 🎵</h3>
+
+        <input
+          type="text"
+          id="songTitle"
+          placeholder="Song name"
+        >
+
+        <input
+          type="text"
+          id="songArtist"
+          placeholder="Artist name"
+        >
+
+        <input
+          type="file"
+          id="songFile"
+          accept="audio/*"
+        >
+
+        <button class="primary-btn" id="addSongBtn">
+          ADD SONG ＋
+        </button>
+
+        <div id="adminSongList"></div>
+        <button class="logout-btn" id="adminLogout">LOG OUT</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>Develop By Jibon </footer>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="script.js"></script>
+<!-- AURORA UNIVERSE -->
+<div class="aurora-universe">
+  <div class="aurora aurora-one"></div>
+  <div class="aurora aurora-two"></div>
+  <div class="shooting-star"></div>
+</div>
+</body>
+</html>
