@@ -116,6 +116,13 @@ card.className = "photo-card";
 
 const img = document.createElement("img");  
 img.src = photo.image;  
+img.onerror = () => {
+  console.log("IMAGE LOAD ERROR:", photo.image);
+};
+
+img.onload = () => {
+  console.log("IMAGE LOADED:", photo.image);
+};
 img.alt = photo.title || "My photo";  
 img.loading = "lazy";  
 
@@ -309,17 +316,32 @@ refreshWebsite();
 
 async function loadPhotos() {
   console.log("LOAD PHOTOS STARTED");
-  
+
   try {
-  const { data, error } = await supabaseClient
-    .storage
-    .from("photos")
-    .list("", { limit: 100 });
+    console.log("SUPABASE CLIENT:", !!supabaseClient);
+    console.log("SUPABASE URL:", SUPABASE_URL);
 
-  if (error) throw error;
+    const { data, error } = await supabaseClient
+      .storage
+      .from("photos")
+      .list("", {
+        limit: 100,
+        offset: 0,
+        sortBy: {
+          column: "name",
+          order: "asc"
+        }
+      });
 
-  console.log("Supabase files:", data);
-    photos = (data || [])
+    console.log("STORAGE ERROR:", error);
+    console.log("STORAGE DATA:", data);
+
+    if (error) throw error;
+
+    console.log("SUPABASE FILES:", data);
+    console.log("FIRST FILE:", data?.[0]);
+
+    const remotePhotos = (data || [])
       .filter(file =>
         file.name &&
         /\.(jpg|jpeg|png|webp)$/i.test(file.name)
@@ -354,20 +376,24 @@ async function loadPhotos() {
       .filter(Boolean)
       .reverse();
 
+    // Keep existing local photos if Storage is empty
+    photos = remotePhotos;
+savePhotos();
+
     refreshWebsite();
 
     if (isAdmin) renderAdmin();
 
-    console.log("Loaded photos:", photos);
+    console.log("LOADED PHOTOS:", photos);
+    console.log("PHOTO COUNT:", photos.length);
 
   } catch (error) {
-    console.error("Photo loading error:", error);
-    alert("Photo loading failed: " + error.message);
+    console.error("PHOTO LOADING ERROR:", error);
   }
 }
 
 loadPhotos();
-
+/* 
 /* =====================================
    JIBON'S WORLD
    PART 2 - JAVASCRIPT
@@ -1002,32 +1028,7 @@ if (profile3D) {
   profile3D.addEventListener("touchend", resetProfile);
 }
 
-/* SECRET SURPRISE SYSTEM */
 
-const secretBtn = $("secretBtn");
-const secretMessage = $("secretMessage");
-
-if (secretBtn && secretMessage) {
-
-  secretBtn.addEventListener("click", () => {
-
-    secretMessage.classList.toggle("show");
-
-    if (secretMessage.classList.contains("show")) {
-      secretBtn.textContent = " Close information ";
-
-      secretMessage.scrollIntoView({
-        behavior: "smooth",
-        block: "center"
-      });
-
-    } else {
-      secretBtn.textContent = "More Information";
-    }
-
-  });
-
-}
 /* CINEMATIC PAGE TRANSITION */
 
 const originalShowPage = showPage;
@@ -1051,7 +1052,49 @@ showPage = function(pageName) {
   }, 300);
 
 };
+/* SECRET SURPRISE SYSTEM */
 
+const secretBtn = $("secretBtn");
+const secretMessage = $("secretMessage");
+
+function sparkleBurst(button) {
+  const box = button.parentElement;
+  const cx = button.offsetLeft + button.offsetWidth / 2;
+  const cy = button.offsetTop + button.offsetHeight / 2;
+
+  for (let i = 0; i < 16; i++) {
+    const spark = document.createElement("span");
+    spark.className = "sparkle";
+
+    const angle = (Math.PI * 2 * i) / 16 + Math.random() * 0.4;
+    const distance = 60 + Math.random() * 60;
+
+    spark.style.left = cx + "px";
+    spark.style.top = cy + "px";
+    spark.style.setProperty("--dx", Math.cos(angle) * distance + "px");
+    spark.style.setProperty("--dy", Math.sin(angle) * distance + "px");
+
+    box.appendChild(spark);
+    setTimeout(() => spark.remove(), 900);
+  }
+}
+
+if (secretBtn && secretMessage) {
+  secretBtn.addEventListener("click", () => {
+    const isOpen = secretMessage.classList.toggle("show");
+
+    secretBtn.classList.toggle("open", isOpen);
+    secretBtn.textContent = isOpen ? "Close information" : "More Information";
+
+    sparkleBurst(secretBtn);
+
+    if (isOpen) {
+      setTimeout(() => {
+        secretMessage.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 350);
+    }
+  });
+}
 /* PHOTO LIQUID LIGHT */
 
 const profileAvatar = document.querySelector(".profile-avatar");
@@ -1111,3 +1154,568 @@ const isMobile = window.matchMedia("(max-width: 650px)").matches;
 if (isMobile) {
   document.documentElement.classList.add("mobile-smooth");
 }
+/* COUNTDOWN */
+let cdConfig = { title: "Birthday", month: 12, day: 25 };
+
+function updateCountdown() {
+  if (!$("cdDays")) return;
+
+  const now = new Date();
+  const { month, day } = cdConfig;
+
+  if (now.getMonth() === month - 1 && now.getDate() === day) {
+    $("cdTitle").textContent = "✦ IT'S TODAY! ✦";
+    ["cdDays", "cdHours", "cdMinutes", "cdSeconds"].forEach(id => {
+      $(id).textContent = "00";
+    });
+    return;
+  }
+
+  let target = new Date(now.getFullYear(), month - 1, day);
+  if (target <= now) {
+    target = new Date(now.getFullYear() + 1, month - 1, day);
+  }
+
+  const diff = target - now;
+  const pad = n => String(n).padStart(2, "0");
+
+  $("cdTitle").textContent = `✦ ${cdConfig.title.toUpperCase()} IN ✦`;
+  $("cdDays").textContent = pad(Math.floor(diff / 86400000));
+  $("cdHours").textContent = pad(Math.floor(diff / 3600000) % 24);
+  $("cdMinutes").textContent = pad(Math.floor(diff / 60000) % 60);
+  $("cdSeconds").textContent = pad(Math.floor(diff / 1000) % 60);
+}
+
+async function loadCountdown() {
+  try {
+    const { data, error } = await supabaseClient
+      .from("site_settings")
+      .select("value")
+      .eq("key", "countdown")
+      .maybeSingle();
+
+    if (error) throw error;
+
+    if (data && data.value) {
+      const saved = JSON.parse(data.value);
+      if (saved.month >= 1 && saved.month <= 12 && saved.day >= 1 && saved.day <= 31) {
+        cdConfig = {
+          title: saved.title || cdConfig.title,
+          month: saved.month,
+          day: saved.day
+        };
+      }
+    }
+  } catch (error) {
+    console.error("Countdown load error:", error);
+  }
+
+  updateCountdown();
+}
+
+const saveCountdownBtn = $("saveCountdownBtn");
+
+if (saveCountdownBtn) {
+  saveCountdownBtn.addEventListener("click", async () => {
+    if (!isAdmin) return;
+
+    const title = $("countdownTitleInput").value.trim() || "Birthday";
+    const dateValue = $("countdownDateInput").value;
+
+    if (!dateValue) {
+      alert("Please pick a date.");
+      return;
+    }
+
+    const [, month, day] = dateValue.split("-").map(Number);
+
+    saveCountdownBtn.disabled = true;
+    saveCountdownBtn.textContent = "SAVING...";
+
+    try {
+      const { error } = await supabaseClient
+        .from("site_settings")
+        .upsert({ key: "countdown", value: JSON.stringify({ title, month, day }) });
+
+      if (error) throw error;
+
+      cdConfig = { title, month, day };
+      updateCountdown();
+      alert("Countdown saved! ⏳");
+    } catch (error) {
+      console.error("Countdown save error:", error);
+      alert("Save failed: " + error.message);
+    } finally {
+      saveCountdownBtn.disabled = false;
+      saveCountdownBtn.textContent = "SAVE COUNTDOWN";
+    }
+  });
+}
+
+updateCountdown();
+loadCountdown();
+setInterval(updateCountdown, 1000);
+/* PERFORMANCE MODE */
+const lowPower =
+  window.matchMedia("(max-width: 650px), (pointer: coarse)").matches ||
+  (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4);
+
+if (lowPower) {
+  document.documentElement.classList.add("perf-lite");
+  animateNetwork = function () {};
+  networkCanvas.style.display = "none";
+}
+/* LIGHT SCROLL REVEAL */
+if (
+  "IntersectionObserver" in window &&
+  !window.matchMedia("(prefers-reduced-motion: reduce)").matches
+) {
+  const revealObserver = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add("in");
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15 });
+
+  document
+    .querySelectorAll(".countdown, .status-board, .visitor-box, .potd, .wish-box, .theme-switch, .secret-box")
+    .forEach(element => {
+      element.classList.add("reveal");
+      revealObserver.observe(element);
+    });
+}
+/* STAR CATCHER GAME */
+(function () {
+  const overlay = $("gameOverlay");
+  const canvas = $("gameCanvas");
+  if (!overlay || !canvas) return;
+
+  const gctx = canvas.getContext("2d");
+  const BEST_KEY = "jibonWorldStarBest";
+  const GAME_TIME = 30;
+
+  let w = 0, h = 0;
+  let items = [], particles = [];
+  let score = 0, streak = 0, timeLeft = GAME_TIME, elapsed = 0;
+  let running = false, rafId = 0, lastTime = 0, spawnAcc = 0;
+  let best = 0;
+  let hudScore = "", hudTime = "", hudStreak = "";
+
+  try { best = Number(localStorage.getItem(BEST_KEY)) || 0; } catch (e) {}
+
+  function showBest() {
+    $("gameBest").textContent = "Best: " + best;
+  }
+
+  function showIntro() {
+    $("gamePanelTitle").textContent = "STAR CATCHER ✦";
+    $("gamePanelText").textContent =
+      "Tap the falling stars for 30 seconds. Golden stars give 5 points. " +
+      "Dark comets take points away!";
+    $("gameStart").textContent = "START";
+    $("gamePanel").classList.remove("hidden");
+  }
+
+  function resize() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+    w = window.innerWidth;
+    h = window.innerHeight;
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    gctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  function updateHud(force) {
+    const s = "Score " + score;
+    const t = Math.ceil(timeLeft) + "s";
+    const k = streak >= 2 ? "x" + streak + " combo" : "";
+
+    if (force || s !== hudScore) { $("gameScore").textContent = s; hudScore = s; }
+    if (force || t !== hudTime) { $("gameTime").textContent = t; hudTime = t; }
+    if (force || k !== hudStreak) { $("gameStreak").textContent = k; hudStreak = k; }
+  }
+
+  function spawn() {
+    const roll = Math.random();
+    let type = "star";
+
+    if (roll > 0.92) type = "gold";
+    else if (roll < 0.14 && elapsed > 3) type = "comet";
+
+    const r = type === "gold" ? 15 : type === "comet" ? 17 : 12 + Math.random() * 8;
+
+    items.push({
+      type: type,
+      r: r,
+      x: r + Math.random() * (w - r * 2),
+      y: -r,
+      vy: (90 + Math.random() * 50 + elapsed * 4) * (type === "gold" ? 1.5 : 1),
+      spin: Math.random() * Math.PI,
+      rot: (Math.random() - .5) * 2
+    });
+  }
+
+  function burst(x, y, color) {
+    for (let i = 0; i < 8; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 60 + Math.random() * 120;
+
+      particles.push({
+        x: x,
+        y: y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        life: 1,
+        color: color
+      });
+    }
+  }
+
+  function hit(x, y) {
+    let index = -1;
+    let nearest = Infinity;
+
+    items.forEach((item, i) => {
+      const d = Math.hypot(item.x - x, item.y - y);
+      if (d < item.r + 16 && d < nearest) {
+        nearest = d;
+        index = i;
+      }
+    });
+
+    if (index < 0) {
+      streak = 0;
+      return;
+    }
+
+    const item = items.splice(index, 1)[0];
+
+    if (item.type === "comet") {
+      score = Math.max(0, score - 3);
+      streak = 0;
+      burst(item.x, item.y, "#f87171");
+      if (navigator.vibrate) navigator.vibrate(40);
+    } else {
+      streak++;
+      const base = item.type === "gold" ? 5 : 1;
+      const bonus = streak >= 5 ? 1 : 0;
+      score += base + bonus;
+      burst(item.x, item.y, item.type === "gold" ? "#fde68a" : "#e9d5ff");
+      if (navigator.vibrate) navigator.vibrate(8);
+    }
+
+    updateHud();
+  }
+
+  function starPath(x, y, r, rot) {
+    gctx.beginPath();
+
+    for (let i = 0; i < 10; i++) {
+      const radius = i % 2 === 0 ? r : r * 0.45;
+      const angle = rot + (Math.PI / 5) * i - Math.PI / 2;
+      const px = x + Math.cos(angle) * radius;
+      const py = y + Math.sin(angle) * radius;
+
+      if (i === 0) gctx.moveTo(px, py);
+      else gctx.lineTo(px, py);
+    }
+
+    gctx.closePath();
+  }
+
+  function draw() {
+    gctx.clearRect(0, 0, w, h);
+
+    items.forEach(item => {
+      if (item.type === "comet") {
+        gctx.beginPath();
+        gctx.moveTo(item.x, item.y - item.r * 2.4);
+        gctx.lineTo(item.x - item.r * 0.7, item.y);
+        gctx.lineTo(item.x + item.r * 0.7, item.y);
+        gctx.closePath();
+        gctx.fillStyle = "rgba(248,113,113,.25)";
+        gctx.fill();
+
+        gctx.beginPath();
+        gctx.arc(item.x, item.y, item.r * 0.8, 0, Math.PI * 2);
+        gctx.fillStyle = "#3b0d1a";
+        gctx.fill();
+        gctx.lineWidth = 2;
+        gctx.strokeStyle = "#f87171";
+        gctx.stroke();
+        return;
+      }
+
+      const gold = item.type === "gold";
+
+      starPath(item.x, item.y, item.r * 1.6, item.spin);
+      gctx.fillStyle = gold ? "rgba(253,230,138,.22)" : "rgba(192,132,252,.2)";
+      gctx.fill();
+
+      starPath(item.x, item.y, item.r, item.spin);
+      gctx.fillStyle = gold ? "#fde68a" : "#e9d5ff";
+      gctx.fill();
+    });
+
+    particles.forEach(p => {
+      gctx.globalAlpha = Math.max(0, p.life);
+      gctx.beginPath();
+      gctx.arc(p.x, p.y, 2.5, 0, Math.PI * 2);
+      gctx.fillStyle = p.color;
+      gctx.fill();
+    });
+
+    gctx.globalAlpha = 1;
+  }
+
+  function frame(now) {
+    if (!running) return;
+
+    const dt = Math.min((now - lastTime) / 1000, 0.05);
+    lastTime = now;
+
+    elapsed += dt;
+    timeLeft = Math.max(0, GAME_TIME - elapsed);
+    spawnAcc += dt;
+
+    const interval = Math.max(0.28, 0.6 - elapsed * 0.01);
+
+    if (spawnAcc >= interval) {
+      spawnAcc = 0;
+      spawn();
+    }
+
+    items.forEach(item => {
+      item.y += item.vy * dt;
+      item.spin += item.rot * dt;
+    });
+
+    items = items.filter(item => {
+      if (item.y > h + item.r) {
+        if (item.type !== "comet") streak = 0;
+        return false;
+      }
+      return true;
+    });
+
+    particles.forEach(p => {
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.vx *= 0.96;
+      p.vy *= 0.96;
+      p.life -= dt * 1.8;
+    });
+
+    particles = particles.filter(p => p.life > 0);
+
+    draw();
+    updateHud();
+
+    if (timeLeft <= 0) {
+      endGame();
+      return;
+    }
+
+    rafId = requestAnimationFrame(frame);
+  }
+
+  function startGame() {
+    resize();
+
+    items = [];
+    particles = [];
+    score = 0;
+    streak = 0;
+    elapsed = 0;
+    timeLeft = GAME_TIME;
+    spawnAcc = 0;
+
+    $("gamePanel").classList.add("hidden");
+    updateHud(true);
+
+    running = true;
+    lastTime = performance.now();
+    rafId = requestAnimationFrame(frame);
+  }
+
+  function endGame() {
+    running = false;
+    cancelAnimationFrame(rafId);
+    draw();
+
+    const isBest = score > best;
+
+    if (isBest) {
+      best = score;
+      try { localStorage.setItem(BEST_KEY, String(best)); } catch (e) {}
+    }
+
+    showBest();
+
+    $("gamePanelTitle").textContent = isBest && score > 0 ? "NEW BEST! ✦" : "TIME'S UP ✦";
+    $("gamePanelText").textContent = "You scored " + score + " points. Best: " + best + ".";
+    $("gameStart").textContent = "PLAY AGAIN";
+    $("gamePanel").classList.remove("hidden");
+  }
+
+  function openGame() {
+    overlay.classList.remove("hidden");
+    document.body.style.overflow = "hidden";
+    resize();
+    items = [];
+    particles = [];
+    gctx.clearRect(0, 0, w, h);
+    score = 0;
+    streak = 0;
+    timeLeft = GAME_TIME;
+    updateHud(true);
+    showIntro();
+  }
+
+  function closeGame() {
+    running = false;
+    cancelAnimationFrame(rafId);
+    overlay.classList.add("hidden");
+    document.body.style.overflow = "";
+  }
+
+  ["pointerdown", "pointermove", "mousedown", "mousemove", "click"].forEach(type => {
+    overlay.addEventListener(type, event => event.stopPropagation());
+  });
+
+  ["touchstart", "touchmove"].forEach(type => {
+    overlay.addEventListener(type, event => event.stopPropagation(), { passive: true });
+  });
+
+  $("gamePlayBtn").addEventListener("click", openGame);
+  $("gameStart").addEventListener("click", startGame);
+  $("gameClose").addEventListener("click", closeGame);
+
+  let lastTap = { x: -99, y: -99, t: 0 };
+
+function handleTap(clientX, clientY) {
+  if (!running) return;
+
+  const now = Date.now();
+  if (
+    now - lastTap.t < 60 &&
+    Math.hypot(clientX - lastTap.x, clientY - lastTap.y) < 8
+  ) return;
+
+  lastTap = { x: clientX, y: clientY, t: now };
+
+  const rect = canvas.getBoundingClientRect();
+  const x = (clientX - rect.left) * (w / rect.width);
+  const y = (clientY - rect.top) * (h / rect.height);
+
+  burst(x, y, "#8b7bb8");
+  hit(x, y);
+}
+
+canvas.addEventListener("pointerdown", event => {
+  handleTap(event.clientX, event.clientY);
+});
+
+canvas.addEventListener("touchstart", event => {
+  const touch = event.changedTouches[0];
+  handleTap(touch.clientX, touch.clientY);
+}, { passive: true });
+
+canvas.addEventListener("mousedown", event => {
+  handleTap(event.clientX, event.clientY);
+});
+
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape" && !overlay.classList.contains("hidden")) closeGame();
+  });
+
+  window.addEventListener("resize", () => {
+    if (!overlay.classList.contains("hidden")) resize();
+  });
+
+  showBest();
+})();
+  /* GAME ANIMATIONS (wrappers) */
+  let floaters = [];
+
+  function bump(el) {
+    el.classList.remove("bump");
+    void el.offsetWidth;
+    el.classList.add("bump");
+  }
+
+  function shake() {
+    overlay.classList.remove("shake");
+    void overlay.offsetWidth;
+    overlay.classList.add("shake");
+  }
+
+  const baseHit = hit;
+
+  hit = function (x, y) {
+    const scoreBefore = score;
+    const countBefore = items.length;
+
+    baseHit(x, y);
+
+    if (items.length < countBefore) {
+      const diff = score - scoreBefore;
+      const bad = diff <= 0;
+
+      floaters.push({
+        x: x,
+        y: y,
+        text: bad ? "-3" : "+" + diff,
+        color: bad ? "#f87171" : diff >= 5 ? "#fde68a" : "#e9d5ff",
+        born: performance.now()
+      });
+
+      if (bad) shake();
+    }
+  };
+
+  const baseDraw = draw;
+
+  draw = function () {
+    baseDraw();
+
+    const now = performance.now();
+    floaters = floaters.filter(f => now - f.born < 900);
+
+    floaters.forEach(f => {
+      const age = (now - f.born) / 900;
+
+      gctx.globalAlpha = 1 - age;
+      gctx.font = "700 20px Poppins, sans-serif";
+      gctx.textAlign = "center";
+      gctx.fillStyle = f.color;
+      gctx.fillText(f.text, f.x, f.y - age * 45);
+    });
+
+    gctx.globalAlpha = 1;
+  };
+
+  const baseUpdateHud = updateHud;
+
+  updateHud = function (force) {
+    const prevScore = hudScore;
+    const prevStreak = hudStreak;
+
+    baseUpdateHud(force);
+
+    if (!force && hudScore !== prevScore) bump($("gameScore"));
+    if (!force && hudStreak !== prevStreak && hudStreak) bump($("gameStreak"));
+
+    $("gameTime").classList.toggle("low", running && timeLeft <= 5);
+  };
+/* COUNTDOWN SECOND TICK */
+setInterval(() => {
+  const el = $("cdSeconds");
+  if (!el) return;
+
+  el.classList.remove("tick");
+  void el.offsetWidth;
+  el.classList.add("tick");
+}, 1000);

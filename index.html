@@ -93,14 +93,29 @@
           <span class="card-arrow">↗</span>
         </button>
       </div>
-
+      
+<div class="countdown glass">
+  <p class="countdown-title" id="cdTitle">✦ BIRTHDAY IN ✦</p>
+  <div class="countdown-boxes">
+    <div><strong id="cdDays">00</strong><small>days</small></div>
+    <div><strong id="cdHours">00</strong><small>hours</small></div>
+    <div><strong id="cdMinutes">00</strong><small>min</small></div>
+    <div><strong id="cdSeconds">00</strong><small>sec</small></div>
+  </div>
+</div>
+<div class="game-teaser glass">
+  <p class="game-title">✦ STAR CATCHER ✦</p>
+  <p class="game-sub">Catch the falling stars in 30 seconds!</p>
+  <p class="game-best" id="gameBest">Best: 0</p>
+  <button class="primary-btn" id="gamePlayBtn">PLAY ▶</button>
+</div>
 <!-- SECRET SURPRISE -->
 
 <div class="secret-box">
 
-  <button class="secret-btn" id="secretBtn">
-     More Information
-  </button>
+<button class="secret-btn" id="secretBtn">
+  More Information
+</button>
 
   <div class="secret-message" id="secretMessage">
     <h2>✦ My Universe ✦</h2>
@@ -312,6 +327,12 @@ placeholder="Supabase Password">
         <input id="hobbyDescription" placeholder="Short description">
         <button class="primary-btn" id="addHobbyBtn">ADD HOBBY ＋</button>
         <div id="adminHobbyList"></div>
+        <h3>Countdown ⏳</h3>
+<h3>Countdown ⏳</h3>
+<input type="text" id="countdownTitleInput" placeholder="Title (e.g. Birthday)">
+<input type="date" id="countdownDateInput">
+<button class="primary-btn" id="saveCountdownBtn">SAVE COUNTDOWN</button>
+
                 <!-- ADMIN MUSIC MANAGER -->
         <h3>Music Manager 🎵</h3>
 
@@ -344,6 +365,22 @@ placeholder="Supabase Password">
   </div>
 
   <footer>Develop By Jibon </footer>
+</div>
+<div class="game-overlay hidden" id="gameOverlay">
+  <div class="game-hud">
+    <span id="gameScore">Score 0</span>
+    <span id="gameStreak"></span>
+    <span id="gameTime">30s</span>
+    <button id="gameClose" aria-label="Close">✕</button>
+  </div>
+
+  <canvas id="gameCanvas"></canvas>
+
+  <div class="game-panel" id="gamePanel">
+    <h2 id="gamePanelTitle">STAR CATCHER ✦</h2>
+    <p id="gamePanelText"></p>
+    <button class="primary-btn" id="gameStart">START</button>
+  </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="script.js"></script>

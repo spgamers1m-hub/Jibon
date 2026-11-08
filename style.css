@@ -2401,3 +2401,380 @@ html {
 @media (prefers-reduced-motion: reduce) {
   .motion-emoji { animation: none; }
 }
+/* COUNTDOWN */
+.countdown {
+  margin: 34px auto 10px;
+  padding: 22px 16px;
+  max-width: 520px;
+  text-align: center;
+}
+
+.countdown-title {
+  font-size: 12px;
+  letter-spacing: 3px;
+  color: var(--muted);
+  margin-bottom: 14px;
+}
+
+.countdown-boxes {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.countdown-boxes div {
+  background: hsl(var(--hue) 55% 14% / .6);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 12px 4px;
+}
+
+.countdown-boxes strong {
+  display: block;
+  font-size: clamp(22px, 6vw, 32px);
+  font-weight: 600;
+  color: hsl(var(--hue) 100% 85%);
+}
+
+.countdown-boxes small {
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: var(--muted);
+}
+/* MORE INFORMATION BUTTON FIX */
+#secretBtn {
+  display: block;
+  margin: 25px auto;
+  padding: 13px 25px;
+  border: 1px solid hsl(calc(var(--hue) - 9) 100% 73.7%);
+  border-radius: 30px;
+  color: #ffffff;
+  background: linear-gradient(120deg, hsl(calc(var(--hue) - 3.8) 61.5% 20.4%), hsl(calc(var(--hue) - 2.9) 54.3% 48%));
+  box-shadow: 0 0 22px hsl(calc(var(--hue) - 3.5) 52.7% 47.3% / .33);
+  cursor: pointer;
+}
+/* MORE INFORMATION EFFECTS */
+.secret-box { position: relative; }
+
+.secret-message {
+  display: block;
+  visibility: hidden;
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  padding: 0 20px;
+  transform: translateY(16px) scale(.97);
+  filter: blur(6px);
+  animation: none;
+  transition: max-height .6s ease, opacity .5s ease, padding .5s ease,
+              transform .5s ease, filter .5s ease, visibility 0s linear .6s;
+}
+
+.secret-message.show {
+  visibility: visible;
+  max-height: 500px;
+  opacity: 1;
+  padding: 20px;
+  transform: none;
+  filter: none;
+  transition-delay: 0s;
+}
+
+.secret-message > * {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity .5s ease, transform .5s ease;
+}
+
+.secret-message.show > * {
+  opacity: 1;
+  transform: none;
+}
+
+.secret-message.show > :nth-child(1) { transition-delay: .2s; }
+.secret-message.show > :nth-child(2) { transition-delay: .35s; }
+.secret-message.show > :nth-child(3) { transition-delay: .5s; }
+.secret-message.show > :nth-child(4) { transition-delay: .65s; }
+
+.secret-message h2 {
+  text-shadow: 0 0 18px hsl(var(--hue) 100% 70% / .6);
+}
+
+.secret-btn.open {
+  animation: secretPulse 1.8s ease-in-out infinite;
+}
+
+@keyframes secretPulse {
+  50% { box-shadow: 0 0 38px hsl(var(--hue) 100% 74% / .8); }
+}
+
+.sparkle {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  pointer-events: none;
+  background: hsl(var(--hue) 100% 82%);
+  box-shadow: 0 0 8px hsl(var(--hue) 100% 70%);
+  animation: sparkleFly .85s ease-out forwards;
+}
+
+@keyframes sparkleFly {
+  from { opacity: 1; transform: translate(0, 0) scale(1); }
+  to { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(.2); }
+}
+:root { --hue: 270; }
+/* ===== PERFORMANCE ===== */
+h1, h2, h3,
+.glass::after,
+.photo-card::after,
+.profile-card::after,
+#photoGrid .photo-card,
+body::before,
+.aurora {
+  animation: none;
+}
+
+body::after { display: none; }
+
+.perf-lite *,
+.perf-lite *::before,
+.perf-lite *::after {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.perf-lite body::before { filter: none; }
+
+.perf-lite .aurora,
+.perf-lite .shooting-star,
+.perf-lite .hero-orb,
+.perf-lite .welcome-orb {
+  display: none;
+}
+/* LIGHT ANIMATIONS (transform + opacity only) */
+@media (prefers-reduced-motion: no-preference) {
+
+  @keyframes popIn {
+    from { opacity: 0; transform: translateY(18px) scale(.96); }
+    to { opacity: 1; transform: none; }
+  }
+
+  @keyframes pageSlide {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: none; }
+  }
+
+  @keyframes enterPulse {
+    50% { transform: scale(1.05); }
+  }
+
+  .page {
+    animation: pageSlide .35s ease backwards;
+  }
+
+  .feature-card,
+  .hobby-card,
+  .memory-card,
+  #photoGrid .photo-card {
+    animation: popIn .55s cubic-bezier(.2, .8, .2, 1) backwards;
+  }
+
+  .feature-card:nth-child(1), .hobby-card:nth-child(1),
+  .memory-card:nth-child(1), #photoGrid .photo-card:nth-child(1) { animation-delay: .05s; }
+  .feature-card:nth-child(2), .hobby-card:nth-child(2),
+  .memory-card:nth-child(2), #photoGrid .photo-card:nth-child(2) { animation-delay: .12s; }
+  .feature-card:nth-child(3), .hobby-card:nth-child(3),
+  .memory-card:nth-child(3), #photoGrid .photo-card:nth-child(3) { animation-delay: .19s; }
+  .feature-card:nth-child(4), .hobby-card:nth-child(4),
+  .memory-card:nth-child(4), #photoGrid .photo-card:nth-child(4) { animation-delay: .26s; }
+  .hobby-card:nth-child(n+5), .memory-card:nth-child(n+5),
+  #photoGrid .photo-card:nth-child(n+5) { animation-delay: .33s; }
+
+  .feature-card:active,
+  .hobby-card:active,
+  .memory-card:active {
+    transform: scale(.96);
+  }
+
+  #enterBtn {
+    animation: enterPulse 2.2s ease-in-out infinite;
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(22px);
+    transition: opacity .6s ease, transform .6s ease;
+  }
+
+  .reveal.in {
+    opacity: 1;
+    transform: none;
+  }
+}
+/* STAR CATCHER GAME */
+.game-teaser {
+  max-width: 520px;
+  margin: 34px auto 10px;
+  padding: 22px 16px;
+  text-align: center;
+}
+
+.game-title {
+  margin: 0 0 8px;
+  font-size: 12px;
+  letter-spacing: 3px;
+  color: #aaa0bd;
+}
+
+.game-sub {
+  margin: 0 0 6px;
+  font-size: 14px;
+  color: #f8f5ff;
+}
+
+.game-best {
+  margin: 0 0 14px;
+  font-size: 12px;
+  color: #d8baff;
+}
+
+.game-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #070512;
+  touch-action: none;
+  overscroll-behavior: contain;
+}
+
+.game-overlay canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: none;
+}
+
+.game-hud {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  padding-top: max(14px, env(safe-area-inset-top));
+  color: #f8f5ff;
+  font-size: 17px;
+  font-weight: 600;
+  pointer-events: none;
+}
+
+.game-hud #gameStreak {
+  flex: 1;
+  text-align: center;
+  font-size: 13px;
+  color: #fde68a;
+}
+
+.game-hud button {
+  pointer-events: auto;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid rgba(204, 164, 255, .3);
+  background: rgba(255, 255, 255, .08);
+  color: #ffffff;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.game-panel {
+  position: absolute;
+  z-index: 3;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(88vw, 360px);
+  padding: 26px 20px;
+  text-align: center;
+  border-radius: 22px;
+  background: rgba(20, 13, 38, .94);
+  border: 1px solid rgba(204, 164, 255, .3);
+}
+
+.game-panel h2 {
+  margin: 0 0 10px;
+  font-size: 22px;
+}
+
+.game-panel p {
+  margin: 0 0 18px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #cfc4e6;
+}
+.game-overlay canvas {
+  pointer-events: auto;
+}
+/* MORE LIGHT ANIMATIONS */
+@media (prefers-reduced-motion: no-preference) {
+
+  @keyframes headingIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: none; }
+  }
+
+  @keyframes viewerZoom {
+    from { opacity: 0; transform: scale(.9); }
+    to { opacity: 1; transform: none; }
+  }
+
+  @keyframes secondTick {
+    40% { transform: scale(1.12); }
+  }
+
+  .section-heading { animation: headingIn .5s ease backwards; }
+
+  #viewerImage { animation: viewerZoom .3s ease; }
+
+  .primary-btn:active,
+  .category-btn:active,
+  .nav-link:active {
+    transform: scale(.94);
+  }
+
+  .countdown-boxes strong.tick {
+    animation: secondTick .35s ease;
+  }
+}
+/* GAME ANIMATIONS */
+@keyframes gameBump {
+  50% { transform: scale(1.3); }
+}
+
+@keyframes gameShake {
+  0%, 100% { transform: translate(0, 0); }
+  20% { transform: translate(-8px, 3px); }
+  40% { transform: translate(8px, -3px); }
+  60% { transform: translate(-6px, -2px); }
+  80% { transform: translate(6px, 2px); }
+}
+
+@keyframes gameLow {
+  50% { transform: scale(1.2); }
+}
+
+.game-hud .bump { animation: gameBump .25s ease; }
+
+.game-overlay.shake { animation: gameShake .35s ease; }
+
+.game-hud #gameTime.low {
+  color: #f87171;
+  animation: gameLow .6s ease-in-out infinite;
+}
